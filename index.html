@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Embark &amp; Co. — Mobility support, redesigned for real life</title>
+<!-- Helvetica system stack — no web font needed -->
+<style>
+  :root{
+    /* Palette: Bone · Spanish Gray · Masala · Bistre · Drab Olive · Eerie Black */
+    --bone:         #E0D7CC;   /* light neutral */
+    --spanish-gray: #A69A8C;   /* muted taupe-gray */
+    --masala:       #5B5348;   /* warm taupe-brown */
+    --bistre:       #392418;   /* rich dark brown */
+    --drab-olive:   #21221B;   /* near-black olive */
+    --eerie:        #151613;   /* deepest near-black */
+
+    /* role mappings (names kept stable across the stylesheet) */
+    --brown:        var(--bistre);
+    --brown-rich:   #44291a;   /* problem bg — bistre warmed slightly */
+    --olive-dark:   var(--drab-olive);
+    --olive-deep:   var(--eerie);
+    --green-deep:   var(--masala);   /* footer / trust ground now Masala */
+    --bronze:       #8a7f6e;   /* accent for rules/dots — warm gray */
+    --paper:        #f4efe8;   /* page off-white, a touch above Bone */
+    --paper-2:      var(--bone); /* alt section ground */
+    --ink:          #2c261f;   /* primary text */
+    --ink-soft:     #6f655a;   /* body copy */
+    --line:         #d4c8b9;
+    --cream:        #f1ebe1;   /* type on dark grounds */
+    --cream-soft:   #d7cdbf;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans);
+    font-weight:300;
+    background:var(--paper);
+    color:var(--ink-soft);
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3{font-family:var(--sans);font-weight:600;color:var(--ink);letter-spacing:-.02em;line-height:1.05}
+
+  .label{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:11px;
+    letter-spacing:.42em;
+    text-transform:uppercase;
+    color:#9c9082;
+  }
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 48px}
+  .narrow{max-width:760px}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-block;
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    padding:16px 34px;
+    border:1px solid currentColor;
+    color:var(--ink);
+    text-decoration:none;
+    transition:all .4s ease;
+    cursor:pointer;
+    background:transparent;
+  }
+  .btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .btn-filled{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .btn-filled:hover{background:transparent;color:var(--ink)}
+  .btn-light{color:var(--cream);border-color:var(--cream)}
+  .btn-light:hover{background:var(--cream);color:var(--ink)}
+  .btn-light-filled{background:var(--cream);color:var(--ink);border-color:var(--cream)}
+  .btn-light-filled:hover{background:transparent;color:var(--cream)}
+  .btn-row{display:flex;gap:16px;flex-wrap:wrap}
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:24px 48px;
+    background:rgba(243,239,230,0);
+    transition:background .5s ease, padding .5s ease, box-shadow .5s ease;
+  }
+  nav.scrolled{background:rgba(243,239,230,.94);padding:16px 48px;box-shadow:0 1px 0 var(--line);backdrop-filter:blur(8px)}
+  .logo{font-family:var(--sans);font-size:21px;letter-spacing:.16em;text-transform:uppercase;color:var(--cream);text-decoration:none;transition:color .4s}
+  .logo span{display:block;font-size:9px;letter-spacing:.5em;color:var(--spanish-gray);font-family:var(--sans);margin-top:-2px}
+  .nav-links{display:flex;gap:34px;align-items:center}
+  .nav-links a{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream);text-decoration:none;transition:color .3s;text-shadow:0 1px 8px rgba(0,0,0,.25)}
+  .nav-links a:hover{color:#fff}
+  .nav-links .btn{padding:11px 22px;border-color:var(--cream);color:var(--cream);text-shadow:none}
+  .nav-links .btn:hover{background:var(--cream);color:var(--ink)}
+  /* Contact is a filled cream pill on the dark hero; invert cleanly on hover */
+  .nav-links .btn-filled{background:var(--cream);color:var(--ink);border-color:var(--cream)}
+  .nav-links .btn-filled:hover{background:transparent;color:var(--cream);border-color:var(--cream)}
+  /* scrolled: switch to dark ink on paper */
+  nav.scrolled .logo{color:var(--ink)}
+  nav.scrolled .nav-links a{color:var(--ink-soft);text-shadow:none}
+  nav.scrolled .nav-links a:hover{color:var(--ink)}
+  nav.scrolled .nav-links .btn{border-color:var(--ink);color:var(--ink)}
+  nav.scrolled .nav-links .btn:hover{background:var(--ink);color:var(--paper)}
+  nav.scrolled .nav-links .btn-filled{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  nav.scrolled .nav-links .btn-filled:hover{background:transparent;color:var(--ink);border-color:var(--ink)}
+  .menu-toggle{display:none}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:100vh;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-inner{position:relative;z-index:2;width:100%}
+  .hero-split{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+  .hero-copy{display:flex;flex-direction:column;justify-content:center;padding:120px 6vw 80px;background:var(--drab-olive)}
+  .hero-copy .label{color:var(--spanish-gray)}
+  .hero-media{position:relative;overflow:hidden;background:#d8c3a8}
+  .hero-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .hero-copy h1{
+    color:var(--cream);
+    font-size:clamp(40px,5.4vw,72px);
+    line-height:1.02;
+    margin:26px 0 28px;
+    font-weight:700;
+    letter-spacing:-.025em;
+  }
+  .hero-copy p{color:var(--cream-soft);font-size:17px;max-width:460px;line-height:1.85;margin-bottom:40px}
+
+  /* ---------- Section scaffolding ---------- */
+  section{position:relative}
+  .block{padding:130px 0}
+  .block-tight{padding:100px 0}
+
+  .stack-label{margin-bottom:22px}
+  .stack h2{font-size:clamp(34px,4vw,52px);line-height:1.08;margin-bottom:30px;max-width:14ch}
+  .stack h2.wide{max-width:20ch}
+  .stack p{font-size:16px;margin-bottom:20px;max-width:60ch}
+  .lead{font-size:18px !important;color:var(--ink) !important}
+  .proof{color:var(--ink);font-weight:400}
+
+  /* tone variants — flat fills, no gradient */
+  .on-olive{background:var(--drab-olive);color:var(--cream-soft)}
+  .on-olive h2,.on-olive h3{color:var(--cream)}
+  .on-olive .label{color:var(--spanish-gray)}
+  .on-olive .lead{color:var(--cream) !important}
+  .on-olive .proof{color:var(--cream)}
+
+  .on-green{background:var(--masala);color:var(--bone)}
+  .on-green h2,.on-green h3{color:var(--cream)}
+  .on-green .label{color:var(--bone)}
+  .on-green .lead{color:var(--cream) !important}
+  .on-green .proof{color:var(--cream)}
+
+  .on-brown{background:var(--bistre);color:#d8c6ba}
+  .on-brown h2,.on-brown h3{color:var(--bone)}
+  .on-brown .label{color:var(--spanish-gray)}
+  .on-brown .lead{color:var(--bone) !important}
+  .on-brown .proof{color:#f1e4da}
+
+  .on-paper-2{background:var(--paper-2)}
+
+  /* flat tone helper (no overlay) */
+  .lit{position:relative;overflow:hidden}
+  .lit > *{position:relative;z-index:2}
+
+  /* ---------- Intro split ---------- */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:start}
+
+  /* ---------- Philosophy grid ---------- */
+  .phil-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);margin-top:60px;border:1px solid var(--line)}
+  .phil-cell{background:var(--paper);padding:48px 44px}
+  .phil-cell .num{font-family:var(--sans);font-size:30px;color:var(--bronze);display:block;margin-bottom:14px}
+  .phil-cell h3{font-size:24px;margin-bottom:12px;line-height:1.2}
+  .phil-cell p{font-size:15px;margin:0;line-height:1.7}
+
+  /* ---------- Product feature ---------- */
+  .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:stretch;min-height:640px}
+  .feature-media{
+    background:var(--olive-dark);
+    display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;padding:60px;
+  }
+  .feature-media img{width:100%;max-width:400px;filter:drop-shadow(0 30px 50px rgba(0,0,0,.4));position:relative;z-index:2}
+  .feature-text{background:var(--paper-2);padding:90px 70px;display:flex;flex-direction:column;justify-content:center}
+  .feature-text h2{font-size:clamp(32px,3.4vw,46px);line-height:1.08;margin-bottom:24px}
+  .feature-text p{font-size:16px;margin-bottom:18px;max-width:46ch}
+  .feature-list{list-style:none;margin:14px 0 40px;border-top:1px solid var(--line)}
+  .feature-list li{
+    padding:15px 0 15px 30px;border-bottom:1px solid var(--line);
+    font-size:15px;color:var(--ink);position:relative;line-height:1.5;
+  }
+  .feature-list li::before{
+    content:"";position:absolute;left:0;top:24px;
+    width:9px;height:9px;border:1px solid var(--bronze);border-radius:50%;
+  }
+
+  /* ---------- Six feature cards ---------- */
+  .features{padding:130px 0}
+  .features-head{max-width:760px;margin-bottom:60px}
+  .feature-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:36px 30px}
+  .fcard{display:flex;flex-direction:column}
+  .fcard-img{
+    aspect-ratio:4/5;width:100%;overflow:hidden;background:var(--bone);
+    border-radius:2px;margin-bottom:22px;
+  }
+  .fcard-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s ease}
+  .fcard:hover .fcard-img img{transform:scale(1.04)}
+  .fcard .label{margin-bottom:10px}
+  .fcard h3{font-size:21px;line-height:1.15;margin-bottom:8px;font-weight:600}
+  .fcard p{font-size:14.5px;line-height:1.6;margin:0}
+
+  /* ---------- Product range ---------- */
+  .range{padding:130px 0}
+  .range-head{max-width:760px;margin-bottom:60px}
+  .range-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:30px}
+  .pcard{background:var(--bone);border-radius:2px;overflow:hidden;display:flex;flex-direction:column}
+  .pcard-img{aspect-ratio:1/1;background:#f4efe8;display:flex;align-items:center;justify-content:center;padding:30px}
+  .pcard-img img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+  .pcard-img.lifestyle{padding:0}
+  .pcard-img.lifestyle img{object-fit:cover;mix-blend-mode:normal}
+  .pcard-body{padding:30px 30px 34px;display:flex;flex-direction:column;flex:1}
+  .pcard h3{font-size:22px;line-height:1.15;margin-bottom:10px;font-weight:600}
+  .pcard p{font-size:14.5px;line-height:1.6;margin-bottom:22px;flex:1}
+  .pcard .btn{padding:12px 22px;font-size:11px;align-self:flex-start}
+
+  .center{text-align:center}
+  .center h2{margin-left:auto;margin-right:auto}
+  .center p{margin-left:auto;margin-right:auto}
+  .center .btn-row{justify-content:center}
+
+  /* ---------- Final CTA ---------- */
+  .cta{background:var(--olive-deep)}
+  .cta h2{color:var(--cream);font-size:clamp(34px,4.4vw,58px);line-height:1.06;max-width:18ch;margin:0 auto 26px}
+  .cta p{color:var(--cream-soft);max-width:50ch;margin:0 auto 40px;font-size:17px}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--eerie);color:#8f8678;padding:64px 0 40px;font-size:13px}
+  .foot-grid{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:40px;border-bottom:1px solid #2e2f28;padding-bottom:40px;margin-bottom:28px}
+  .foot-logo{font-family:var(--sans);font-size:22px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone)}
+  .foot-logo span{display:block;font-size:9px;letter-spacing:.5em;color:var(--spanish-gray);font-family:var(--sans);margin-top:2px}
+  .foot-col h4{font-family:var(--sans);font-weight:400;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--spanish-gray);margin-bottom:16px}
+  .foot-col a{display:block;color:#8f8678;text-decoration:none;margin-bottom:9px;transition:color .3s}
+  .foot-col a:hover{color:var(--bone)}
+  .foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;letter-spacing:.08em}
+
+  /* ---------- Animation ---------- */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .9s ease,transform .9s ease}
+  .reveal.in{opacity:1;transform:translateY(0)}
+
+  /* ---------- Responsive ---------- */
+  @media(max-width:900px){
+    .wrap{padding:0 26px}
+    nav{padding:18px 26px}
+    nav.scrolled{padding:14px 26px}
+    .nav-links{
+      position:fixed;top:0;right:0;height:100vh;width:74%;max-width:320px;
+      background:var(--paper);flex-direction:column;justify-content:center;align-items:flex-start;
+      padding:0 40px;gap:26px;transform:translateX(100%);transition:transform .45s ease;box-shadow:-10px 0 40px rgba(0,0,0,.12);
+    }
+    .nav-links.open{transform:translateX(0)}
+    .nav-links a{color:var(--ink-soft);text-shadow:none}
+    .nav-links .btn{border-color:var(--ink);color:var(--ink)}
+    .menu-toggle{display:flex;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;z-index:120;padding:6px}
+    .menu-toggle span{width:24px;height:1.5px;background:var(--cream);transition:.3s}
+    nav.scrolled .menu-toggle span{background:var(--ink)}
+    .hero-grid,.two-col,.feature-grid{grid-template-columns:1fr;gap:48px}
+    .hero-split{grid-template-columns:1fr;min-height:auto}
+    .hero-media{min-height:58vh;order:-1}
+    .hero-copy{padding:110px 26px 70px}
+    .feature-grid{min-height:auto}
+    .feature-text{padding:60px 30px}
+    .feature-media{padding:50px 30px}
+    .phil-grid{grid-template-columns:1fr}
+    .block,.block-tight{padding:84px 0}
+    .features,.range{padding:84px 0}
+    .feature-cards{grid-template-columns:1fr 1fr;gap:30px 20px}
+    .range-grid{grid-template-columns:1fr;gap:24px}
+  }
+  @media(max-width:560px){
+    .feature-cards{grid-template-columns:1fr;gap:36px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav id="nav">
+  <a href="#" class="logo">Embark &amp; Co.<span>Considered Mobility</span></a>
+  <button class="menu-toggle" id="menuToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  <div class="nav-links" id="navLinks">
+    <a href="#approach">Approach</a>
+    <a href="#feature">Details</a>
+    <a href="#products">Products</a>
+    <a href="#story">Why We Design</a>
+    <a href="#contact" class="btn btn-filled">Contact</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-split">
+    <div class="hero-copy">
+      <span class="label">Considered, not clinical</span>
+      <h1>Mobility equipment that belongs in your home.</h1>
+      <p>Thoughtfully designed support products for people who want comfort, function and dignity — without compromising on how their home feels.</p>
+      <div class="btn-row">
+        <a href="#products" class="btn btn-light-filled">View Products</a>
+        <a href="#approach" class="btn btn-light">Learn Our Design Approach</a>
+      </div>
+    </div>
+    <div class="hero-media">
+      <img src="hero-everyday-lifestyle.jpg" alt="Embark & Co. Everyday Walker — pewter folding frame with canvas storage bag and tan leather straps, at home in a warm, sunlit living room beside a sofa and olive tree">
+    </div>
+  </div>
+</header>
+
+<!-- ============ INTRO ============ -->
+<section class="block" id="intro">
+  <div class="wrap two-col reveal">
+    <div class="stack">
+      <span class="label stack-label">01 — The idea</span>
+      <h2 class="wide">Practical support, made easier to live with.</h2>
+    </div>
+    <div class="stack">
+      <p class="lead">Mobility equipment is often designed around function first, with appearance treated as an afterthought. We believe both matter.</p>
+      <p>Our products are created to support daily routines while feeling more refined, more intuitive and more suited to real homes. Every detail is considered — from how it folds and stores, to how it feels to use, clean and move.</p>
+      <p class="proof">This is equipment designed to help, without making people feel defined by it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="block lit on-brown" id="problem">
+  <div class="wrap narrow stack reveal">
+    <span class="label stack-label">02 — The problem</span>
+    <h2 class="wide">Most mobility products solve one problem, then create another.</h2>
+    <p class="lead">They may be practical, but they can feel bulky, medical and out of place in the home.</p>
+    <p>For many people — especially younger adults, or those adjusting to new support needs — that matters. The product has to work well, but it also needs to feel acceptable to use every day.</p>
+    <p class="proof">We design with that in mind.</p>
+  </div>
+</section>
+
+<!-- ============ DESIGN PHILOSOPHY ============ -->
+<section class="block" id="approach">
+  <div class="wrap reveal">
+    <div class="stack narrow">
+      <span class="label stack-label">03 — Our approach</span>
+      <h2 class="wide">Designed around real life.</h2>
+      <p class="lead">Our approach combines function, comfort and appearance, so every product feels easier to use and easier to live with.</p>
+    </div>
+    <div class="phil-grid">
+      <div class="phil-cell"><span class="num">01</span><h3>Easy to fold and store</h3><p>Compact designs that do not take over the room.</p></div>
+      <div class="phil-cell"><span class="num">02</span><h3>Considered materials and finishes</h3><p>A softer, more modern look that feels less medical.</p></div>
+      <div class="phil-cell"><span class="num">03</span><h3>Practical where it matters</h3><p>Stable, easy to clean, easy to move and simple to understand.</p></div>
+      <div class="phil-cell"><span class="num">04</span><h3>Designed for dignity</h3><p>Supportive products that respect the person using them.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCT FEATURE ============ -->
+<!-- ============ SIX FEATURES ============ -->
+<section class="features" id="feature">
+  <div class="wrap reveal">
+    <div class="features-head">
+      <span class="label stack-label">Considered in every detail</span>
+      <h2 style="font-size:clamp(32px,3.6vw,46px);line-height:1.08;margin-top:18px">Designed down to the smallest detail.</h2>
+    </div>
+    <div class="feature-cards">
+
+      <div class="fcard">
+        <div class="fcard-img"><img src="feat1-bag-new.jpg" alt="Embark & Co. canvas front storage bag with tan leather straps, brass studs and engraved brass nameplate"></div>
+        <span class="label">Useful everyday storage</span>
+        <h3>Generous front storage</h3>
+        <p>A structured front bag for phone, wallet, glasses, keys, medication and other essentials.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="fcard-img"><img src="feat2-nameplate.jpg" alt="Engraved brass Embark & Co. nameplate fixed to woven canvas with slotted brass screws"></div>
+        <span class="label">Neatly finished</span>
+        <h3>Refined finishing details</h3>
+        <p>An engraved brass nameplate and warm tan accents give the frame a considered, personal feel.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="fcard-img"><img src="feat3-grip.jpg" alt="Soft padded handle grip sleeve on the pewter frame"></div>
+        <span class="label">Comfortable to hold</span>
+        <h3>Comfortable in the hand</h3>
+        <p>Softly padded grips sit easily under the hand for steady, confident everyday support.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="fcard-img"><img src="feat4-folding.jpg" alt="Folding hinge mechanism and height-adjustment holes on the pewter frame"></div>
+        <span class="label">Easy to move</span>
+        <h3>Folds for easy storage</h3>
+        <p>A neat folding frame with simple height adjustment, ready to store, lift and travel with.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="fcard-img"><img src="feat5-castor.jpg" alt="Front swivel castor wheel on the pewter frame"></div>
+        <span class="label">Easy to move</span>
+        <h3>Smooth to steer</h3>
+        <p>Swivel front castors glide easily, making turns and tight spaces simple to manage.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="fcard-img"><img src="feat6-wheel.jpg" alt="Spoked rear wheel and lower frame"></div>
+        <span class="label">Stable support</span>
+        <h3>Steady support on the move</h3>
+        <p>A wheeled frame designed to support daily movement, errands and time out of the house.</p>
+      </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCT RANGE ============ -->
+<section class="range on-paper-2" id="products">
+  <div class="wrap reveal">
+    <div class="range-head">
+      <span class="label stack-label">The range</span>
+      <h2 style="font-size:clamp(32px,3.6vw,46px);line-height:1.08;margin-top:18px">Made for daily life.</h2>
+      <p style="font-size:16px;margin-top:18px;color:var(--ink-soft)">Eight considered designs, each built for a different part of everyday life — moving, resting, washing, at home and out in the world.</p>
+    </div>
+    <div class="range-grid">
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="product-everyday-walker-full.jpg" alt="Embark & Co. Everyday Walker — pewter folding frame with canvas storage bag and tan straps"></div>
+        <div class="pcard-body">
+          <h3>Everyday Walker</h3>
+          <p>Lightweight folding support with premium everyday storage. Thoughtfully refined for daily life.</p>
+          <a href="#contact" class="btn">View product</a>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="product-rover-everyday.jpg" alt="Embark & Co. Rover Everyday Walker — olive-green wheeled walker with structured front storage bag, side sling pocket and hand brakes"></div>
+        <div class="pcard-body">
+          <h3>Rover Everyday Walker</h3>
+          <p>Stylish wheeled support with generous everyday storage. A refined companion for errands and outings.</p>
+          <a href="#contact" class="btn">View product</a>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="product-rover-home.jpg" alt="Embark & Co. Rover Home Walker — olive-green wheeled walker with matt tray top and side sling pocket"></div>
+        <div class="pcard-body">
+          <h3>Rover Home Walker</h3>
+          <p>A practical tray walker designed for everyday life at home — for moving meals, drinks and daily items with ease.</p>
+          <a href="#contact" class="btn">View product</a>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="product-carry-walker.jpg" alt="Embark & Co. Everyday Carry Walker — suspended soft storage bin with brass nameplate on a pewter frame"></div>
+        <div class="pcard-body">
+          <h3>Everyday Carry Walker</h3>
+          <p>Practical support with integrated soft storage for everyday use. An upright, supportive frame with a roomy suspended bin.</p>
+          <a href="#contact" class="btn">View product</a>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img lifestyle"><img src="product-lift-storage-desk.jpg" alt="Embark &amp; Co. Lift Storage Desk — walnut overbed desk with lift-top storage compartment and locking castors"></div>
+        <div class="pcard-body">
+          <h3>Lift Storage Desk</h3>
+          <p>An overbed desk with a lift-top compartment, keeping books, glasses and daily things close at hand.</p>
+          <a href="#contact" class="btn">View product</a>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img lifestyle"><img src="product-cantilever-lift-desk.jpg" alt="Embark &amp; Co. Cantilever Lift Desk — slim earth green overbed desk with cantilever base and locking castors"></div>
+        <div class="pcard-body">
+          <h3>Cantilever Lift Desk</h3>
+          <p>A slim, space-saving overbed desk with a thin top that glides easily under beds and chairs.</p>
+          <a href="#contact" class="btn">View product</a>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img lifestyle"><img src="product-mobile-shower-stool.jpg" alt="Embark &amp; Co. Mobile Shower Stool — brushed stainless steel shower stool with supportive handles and removable taupe seat"></div>
+        <div class="pcard-body">
+          <h3>Mobile Shower Stool</h3>
+          <p>Brushed steel with supportive handles and a removable seat. Designed for confidence in the bathroom.</p>
+          <a href="#contact" class="btn">View product</a>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img lifestyle"><img src="product-wall-shower-seat.jpg" alt="Embark &amp; Co. Wall Shower Seat — wall-mounted folding shower seat with matte stainless steel wall plates"></div>
+        <div class="pcard-body">
+          <h3>Wall Shower Seat</h3>
+          <p>A wall-mounted seat that folds away neatly when not in use, and lifts off entirely for cleaning.</p>
+          <a href="#contact" class="btn">View product</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ EMOTIONAL ============ -->
+<section class="block lit on-olive" id="emotional">
+  <div class="wrap narrow stack center reveal">
+    <span class="label stack-label">04 — Why it matters</span>
+    <h2 class="wide">Support should not feel like giving something up.</h2>
+    <p class="lead">The right product can make daily routines feel easier, safer and more independent.</p>
+    <p>But it should also feel good to have in your home. Our aim is to create mobility products that people feel more comfortable using, owning and recommending.</p>
+  </div>
+</section>
+
+<!-- ============ MODERN AUDIENCE ============ -->
+<section class="block on-paper-2" id="modern">
+  <div class="wrap two-col reveal">
+    <div class="stack">
+      <span class="label stack-label">05 — A wider audience</span>
+      <h2 class="wide">A more modern approach to mobility.</h2>
+    </div>
+    <div class="stack">
+      <p class="lead">Not every person using mobility equipment is elderly. Not every home suits bulky, hospital-style products. And not every support product needs to look the same.</p>
+      <p class="proof">We are developing products for people who want practical assistance, but still care about design, independence and personal style.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST ============ -->
+<section class="block lit on-green" id="story">
+  <div class="wrap narrow stack reveal">
+    <span class="label stack-label">06 — Built with purpose</span>
+    <h2 class="wide">Every design choice has a reason.</h2>
+    <p class="lead">The fold, the wheels, the seat shape, the frame, the finish and the way the product stores all need to work together.</p>
+    <p class="proof">Our focus is simple: create products that are useful, reliable and more thoughtfully designed for the people who use them.</p>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="block lit cta" id="contact">
+  <div class="wrap center reveal">
+    <span class="label stack-label" style="color:var(--spanish-gray)">Ready when you are</span>
+    <h2>Ready to rethink what mobility support can look like?</h2>
+    <p>Explore practical, design-led products made for real homes and real people.</p>
+    <div class="btn-row">
+      <a href="#products" class="btn btn-light-filled">View Products</a>
+      <a href="#contact" class="btn btn-light">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-logo">Embark &amp; Co.<span>Considered Mobility</span></div>
+      <div class="foot-col">
+        <h4>Explore</h4>
+        <a href="#products">Everyday Walker</a>
+        <a href="#products">Rover Everyday Walker</a>
+        <a href="#products">Rover Home Walker</a>
+        <a href="#products">Everyday Carry Walker</a>
+        <a href="#products">Lift Storage Desk</a>
+        <a href="#products">Cantilever Lift Desk</a>
+        <a href="#products">Mobile Shower Stool</a>
+        <a href="#products">Wall Shower Seat</a>
+        <a href="#approach">Design Approach</a>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="#story">Why We Design</a>
+        <a href="#contact">Contact</a>
+        <a href="#">Stockists &amp; Trade</a>
+      </div>
+      <div class="foot-col">
+        <h4>Get in touch</h4>
+        <a href="mailto:hello@embarkandco.co.nz">hello@embarkandco.co.nz</a>
+        <a href="#">Aotearoa New Zealand</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Embark &amp; Co. All rights reserved.</span>
+      <span>Designed for real homes and real people.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Nav background on scroll
+  const nav=document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>40));
+
+  // Mobile menu
+  const toggle=document.getElementById('menuToggle'),links=document.getElementById('navLinks');
+  toggle.addEventListener('click',()=>links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>links.classList.remove('open')));
+
+  // Reveal on scroll
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
